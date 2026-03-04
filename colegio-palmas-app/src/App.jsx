@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import * as XLSX from "xlsx";
+import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
 
 const INITIAL_USERS = [
   { id: 1, username: "admin", password: "admin123", role: "admin", name: "Administrador" },
