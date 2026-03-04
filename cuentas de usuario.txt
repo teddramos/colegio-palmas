@@ -1,0 +1,5 @@
+Accesos de prueba:
+Usuario    |Contraseña | Rol 
+admin      admin123     Administrador
+asistente  asist123     Asistente
+empleado   empl123      Empleado
