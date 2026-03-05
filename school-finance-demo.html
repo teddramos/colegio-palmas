@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Colegio Las Palmas – Sistema Financiero</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<!-- SheetJS para exportar Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & VARIABLES  —  inspirado en hogarcampestre.org
+════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Paleta extraída del sitio de referencia */
+  --hc-green:    #3a6b35;   /* verde primario del logo */
+  --hc-green2:   #4e8c47;   /* verde secundario */
+  --hc-green3:   #6aac61;   /* verde claro */
+  --hc-dark:     #1e2d1a;   /* casi negro vegetal */
+  --hc-gold:     #c9a84c;   /* dorado acento */
+  --hc-cream:    #f7f5f0;   /* fondo crema */
+  --hc-white:    #ffffff;
+  --hc-gray:     #6b7068;
+  --hc-gray-l:   #eaeee8;
+  --hc-red:      #b03a2e;
+  --hc-red-l:    #fdf0ee;
+  --hc-blue:     #2e5fa3;
+  --shadow:      0 2px 12px rgba(30,45,26,.09);
+  --shadow-m:    0 6px 28px rgba(30,45,26,.13);
+  --shadow-l:    0 14px 48px rgba(30,45,26,.18);
+  --radius:      10px;
+  --topbar-h:    40px;
+  --navbar-h:    72px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Open Sans',sans-serif;background:var(--hc-cream);color:var(--hc-dark);overflow-x:hidden}
+
+/* ═══ TOP-BAR (igual al del sitio referencia) ═══ */
+.topbar{
+  background:var(--hc-dark);color:rgba(255,255,255,.72);
+  height:var(--topbar-h);display:flex;align-items:center;
+  padding:0 5%;font-size:12px;letter-spacing:.03em;
+  justify-content:space-between;
+}
+.topbar-left{display:flex;align-items:center;gap:20px}
+.topbar-left span{display:flex;align-items:center;gap:5px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-right a{color:rgba(255,255,255,.72);text-decoration:none;font-size:12px;transition:color .2s}
+.topbar-right a:hover{color:var(--hc-gold)}
+.topbar-tag{background:var(--hc-green);color:white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:background .2s}
+.topbar-tag:hover{background:var(--hc-green2)}
+
+/* ═══ NAVBAR ═══ */
+.navbar{
+  background:var(--hc-white);border-bottom:1px solid var(--hc-gray-l);
+  height:var(--navbar-h);display:flex;align-items:center;
+  padding:0 5%;justify-content:space-between;
+  position:sticky;top:0;z-index:900;
+  box-shadow:var(--shadow);
+}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-emblem{
+  width:48px;height:48px;background:var(--hc-green);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;position:relative;overflow:hidden;
+}
+.logo-emblem::after{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ctext y='36' x='4' font-size='34' fill='white'%3E🌿%3C/text%3E%3C/svg%3E") center/32px no-repeat;
+}
+.logo-text-wrap{display:flex;flex-direction:column;line-height:1.2}
+.logo-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--hc-green)}
+.logo-sub{font-size:10px;color:var(--hc-gray);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{
+  padding:8px 13px;border-radius:6px;color:var(--hc-dark);font-size:13px;
+  font-weight:600;text-decoration:none;transition:all .2s;letter-spacing:.01em;
+  display:flex;align-items:center;gap:5px;white-space:nowrap;
+  border:none;background:transparent;cursor:pointer;font-family:'Open Sans',sans-serif;
+}
+.nav-link:hover{background:var(--hc-gray-l);color:var(--hc-green)}
+.nav-link.active{background:var(--hc-green);color:white}
+.nav-link.active:hover{background:var(--hc-green2)}
+.nav-role-badge{
+  font-size:10px;background:var(--hc-gold);color:var(--hc-dark);
+  padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.04em;
+}
+.nav-user{display:flex;align-items:center;gap:10px;margin-left:8px}
+.nav-avatar{
+  width:34px;height:34px;background:var(--hc-green);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:white;
+  font-size:13px;font-weight:700;flex-shrink:0;
+}
+.nav-logout{
+  padding:7px 14px;border-radius:6px;background:var(--hc-red-l);color:var(--hc-red);
+  border:1px solid #f0c0bb;font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .2s;font-family:'Open Sans',sans-serif;
+}
+.nav-logout:hover{background:var(--hc-red);color:white}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--hc-dark);border-radius:2px}
+
+/* ═══ MOBILE NAV ═══ */
+.mobile-nav{
+  display:none;flex-direction:column;background:white;
+  position:fixed;top:calc(var(--topbar-h) + var(--navbar-h));
+  left:0;right:0;z-index:899;box-shadow:var(--shadow-m);
+  padding:8px 5% 16px;border-top:2px solid var(--hc-green);
+}
+.mobile-nav.open{display:flex}
+.mobile-link{
+  padding:11px 14px;border-radius:8px;color:var(--hc-dark);font-size:14px;
+  font-weight:600;text-decoration:none;transition:background .2s;
+  border:none;background:transparent;cursor:pointer;text-align:left;
+  font-family:'Open Sans',sans-serif;display:flex;align-items:center;gap:8px;
+}
+.mobile-link:hover,.mobile-link.active{background:var(--hc-gray-l);color:var(--hc-green)}
+.mobile-link.active{color:var(--hc-green)}
+
+/* ═══ PÁGINAS ═══ */
+.page{display:none;min-height:calc(100vh - var(--topbar-h) - var(--navbar-h))}
+.page.active{display:block}
+
+/* ═══ LOGIN ═══ */
+.login-page{
+  min-height:100vh;background:var(--hc-dark);
+  display:flex;flex-direction:column;
+}
+.login-topbar{
+  background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.08);
+  padding:10px 5%;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:rgba(255,255,255,.5);
+}
+.login-body{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:40px 20px;position:relative;overflow:hidden;
+}
+.login-bg-circle{
+  position:absolute;border-radius:50%;pointer-events:none;
+}
+.login-bg-circle:nth-child(1){width:500px;height:500px;border:1px solid rgba(58,107,53,.2);top:-120px;right:-120px}
+.login-bg-circle:nth-child(2){width:320px;height:320px;background:radial-gradient(circle,rgba(58,107,53,.12),transparent 70%);top:-60px;right:-60px}
+.login-bg-circle:nth-child(3){width:400px;height:400px;border:1px solid rgba(58,107,53,.1);bottom:-100px;left:-100px}
+.login-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:40px 36px;width:100%;max-width:420px;
+  backdrop-filter:blur(20px);position:relative;z-index:2;
+  animation:fadeUp .4s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-icon{
+  width:64px;height:64px;background:var(--hc-green);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  margin:0 auto 14px;box-shadow:0 8px 24px rgba(58,107,53,.4);
+}
+.login-logo h1{font-family:'Playfair Display',serif;color:white;font-size:22px;margin-bottom:4px}
+.login-logo p{font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.04em}
+.login-err{
+  background:rgba(176,58,46,.18);border:1px solid rgba(176,58,46,.35);
+  color:#ff8a80;padding:10px 14px;border-radius:8px;font-size:13px;
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.lf{margin-bottom:14px}
+.lf label{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:5px;letter-spacing:.04em;text-transform:uppercase}
+.lf input{
+  width:100%;padding:11px 14px;border:1.5px solid rgba(255,255,255,.12);
+  border-radius:9px;background:rgba(255,255,255,.07);color:white;
+  font-family:'Open Sans',sans-serif;font-size:14px;outline:none;transition:border .2s;
+}
+.lf input:focus{border-color:var(--hc-green3);box-shadow:0 0 0 3px rgba(58,107,53,.2)}
+.lf input::placeholder{color:rgba(255,255,255,.25)}
+.btn-login{
+  width:100%;padding:13px;background:var(--hc-green);color:white;border:none;
+  border-radius:10px;font-family:'Open Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-login:hover{background:var(--hc-green2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(58,107,53,.4)}
+.login-demo{
+  margin-top:20px;padding:14px;background:rgba(255,255,255,.03);
+  border-radius:10px;font-size:12px;color:rgba(255,255,255,.35);line-height:1.9;
+  border:1px solid rgba(255,255,255,.07);
+}
+.login-demo strong{color:rgba(255,255,255,.55)}
+
+/* ═══ APP LAYOUT ═══ */
+#app{display:none}
+#app.active{display:block}
+
+/* ═══ CONTENIDO PÁGINAS ═══ */
+.page-wrap{padding:28px 5%;max-width:1280px;margin:0 auto}
+@media(max-width:768px){.page-wrap{padding:16px 4%}}
+
+/* ─ Page header ─ */
+.page-header{
+  background:linear-gradient(135deg,var(--hc-green) 0%,var(--hc-dark) 100%);
+  padding:28px 5%;color:white;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.page-header h2{font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,28px);font-weight:700}
+.page-header p{font-size:13px;color:rgba(255,255,255,.65);margin-top:3px}
+
+/* ─ Cards ─ */
+.card{
+  background:var(--hc-white);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow);border:1px solid var(--hc-gray-l);
+}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--hc-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';display:block;width:4px;height:18px;background:var(--hc-green);border-radius:2px}
+
+/* ─ Stat cards ─ */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr}}
+.stat-card{
+  background:var(--hc-white);border-radius:var(--radius);padding:18px 20px;
+  border:1px solid var(--hc-gray-l);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:6px;transition:transform .2s,box-shadow .2s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-m)}
+.stat-label{font-size:10px;font-weight:700;color:var(--hc-gray);text-transform:uppercase;letter-spacing:.07em}
+.stat-value{font-family:'Playfair Display',serif;font-size:clamp(18px,2.5vw,26px);font-weight:700;line-height:1.1}
+.stat-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;align-self:flex-end}
+.stat-row-inner{display:flex;align-items:flex-start;justify-content:space-between}
+
+/* ─ Buttons ─ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:7px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;border:none;white-space:nowrap;min-height:38px}
+.btn-green{background:var(--hc-green);color:white}.btn-green:hover{background:var(--hc-green2)}
+.btn-outline{background:transparent;color:var(--hc-dark);border:1.5px solid var(--hc-gray-l)}.btn-outline:hover{background:var(--hc-gray-l)}
+.btn-gold{background:var(--hc-gold);color:var(--hc-dark)}.btn-gold:hover{background:#d4a83a}
+.btn-danger{background:var(--hc-red-l);color:var(--hc-red);border:1px solid #f0c0bb}.btn-danger:hover{background:var(--hc-red);color:white}
+.btn-sm{padding:5px 12px;font-size:12px;min-height:30px;border-radius:6px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-w{width:100%;justify-content:center;padding:12px}
+
+/* ─ Input ─ */
+.inp{width:100%;padding:10px 13px;border:1.5px solid var(--hc-gray-l);border-radius:8px;font-family:'Open Sans',sans-serif;font-size:14px;color:var(--hc-dark);background:white;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--hc-green2);box-shadow:0 0 0 3px rgba(58,107,53,.1)}
+.inp::placeholder{color:#b0b8ae}
+.lbl{display:block;font-size:12px;font-weight:700;color:var(--hc-gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.fgroup{margin-bottom:14px}
+
+/* ─ Badges ─ */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700}
+.badge-i{background:#e8f5ee;color:var(--hc-green)}.badge-g{background:var(--hc-red-l);color:var(--hc-red)}
+.badge-admin{background:#e8ecff;color:#3b4fd8}.badge-asistente{background:#fff3e8;color:#c47a2b}.badge-empleado{background:var(--hc-gray-l);color:var(--hc-gray)}
+
+/* ─ Table ─ */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--hc-gray);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--hc-gray-l);background:var(--hc-cream)}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--hc-gray-l);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f3f6f2}
+
+/* ─ Modal ─ */
+.modal-bg{position:fixed;inset:0;background:rgba(30,45,26,.5);z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn .2s;backdrop-filter:blur(4px)}
+@media(min-width:600px){.modal-bg{align-items:center;padding:20px}}
+.modal{background:white;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:28px 24px 36px;box-shadow:var(--shadow-l);animation:slideUp .3s}
+@media(min-width:600px){.modal{border-radius:16px;padding:32px}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid var(--hc-gray-l)}
+.modal-head h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--hc-dark)}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--hc-gray-l);border:none;cursor:pointer;font-size:18px;color:var(--hc-gray);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-close:hover{background:var(--hc-green);color:white}
+
+/* ─ Tabs ─ */
+.tabs{display:flex;gap:4px;margin-bottom:14px}
+.tab{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--hc-gray);transition:all .2s;font-family:'Open Sans',sans-serif}
+.tab.active{background:var(--hc-green);color:white}
+.tab:hover:not(.active){background:var(--hc-gray-l);color:var(--hc-dark)}
+
+/* ─ Month chips ─ */
+.month-bar{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.mchip{padding:5px 11px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--hc-gray-l);background:white;color:var(--hc-gray);white-space:nowrap;transition:all .2s;letter-spacing:.02em}
+.mchip:hover{border-color:var(--hc-green);color:var(--hc-green)}
+.mchip.active{background:var(--hc-green);color:white;border-color:var(--hc-green)}
+.mchip.has{border-color:var(--hc-gold);color:var(--hc-dark)}
+
+/* ─ Chart bars ─ */
+.chart-wrap{display:flex;align-items:flex-end;gap:10px;height:130px;padding:0 4px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar-cols{width:100%;display:flex;gap:2px;align-items:flex-end;height:110px}
+.bar{flex:1;border-radius:4px 4px 0 0;transition:height .7s ease;min-height:3px}
+.bar-lbl{font-size:9px;color:var(--hc-gray);font-weight:700}
+
+/* ─ Progress bar ─ */
+.prog-bar{height:5px;background:var(--hc-gray-l);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s ease}
+
+/* ─ Mov cards (mobile) ─ */
+.mov-card{background:white;border-radius:10px;padding:14px;border:1px solid var(--hc-gray-l);margin-bottom:10px;box-shadow:var(--shadow)}
+.mov-row{display:flex;justify-content:space-between;align-items:center}
+
+/* ─ Empty state ─ */
+.empty{text-align:center;padding:48px 20px;color:var(--hc-gray)}
+.empty-icon{font-size:44px;margin-bottom:10px;opacity:.5}
+
+/* ─ Notification ─ */
+.notif{position:fixed;top:16px;left:16px;right:16px;z-index:2000;padding:13px 16px;border-radius:10px;font-size:14px;font-weight:700;box-shadow:var(--shadow-l);animation:slideUp .3s;display:flex;align-items:center;gap:10px;max-width:360px;margin:0 auto}
+.notif-s{background:var(--hc-green);color:white}.notif-e{background:var(--hc-red);color:white}
+@media(min-width:500px){.notif{left:auto;right:20px}}
+
+/* ─ Report print ─ */
+.amount-pos{color:var(--hc-green);font-weight:700}
+.amount-neg{color:var(--hc-red);font-weight:700}
+
+/* ─ Config grid ─ */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.cfg-grid{grid-template-columns:1fr}}
+
+/* ─ Users cards mobile ─ */
+.user-card{background:white;border-radius:10px;padding:14px 16px;border:1px solid var(--hc-gray-l);margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* ─ Section divider ─ */
+.hc-divider{height:3px;background:linear-gradient(90deg,var(--hc-green),var(--hc-gold),transparent);border:none;margin:0}
+
+/* ─ Footer ─ */
+.site-footer{background:var(--hc-dark);color:rgba(255,255,255,.6);padding:28px 5%;font-size:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.site-footer a{color:var(--hc-gold);text-decoration:none}
+.site-footer .footer-logo{font-family:'Playfair Display',serif;color:white;font-size:14px;font-weight:700}
+
+/* ─ Responsive ─ */
+@media(max-width:768px){
+  .topbar{display:none}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-user{display:none}
+  .page-header{padding:20px 4%}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+
+/* ─ Grid helpers ─ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:700px){.three-col{grid-template-columns:1fr}}
+
+/* spinner */
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:_spin .6s linear infinite;display:inline-block}
+@keyframes _spin{to{transform:rotate(360deg)}}
+
+/* select field */
+select.inp{cursor:pointer;-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ NOTIFICACIÓN ══════════════ -->
+<div id="notif" style="display:none" class="notif"></div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-page" class="login-page">
+  <div class="login-topbar">
+    <span>🌿 Hogar Campestre Las Palmas &nbsp;·&nbsp; Bonao, Monseñor Nouel, Rep. Dom.</span>
+    <span>Tel: 809-832-9405</span>
+  </div>
+  <div class="login-body">
+    <div class="login-bg-circle"></div>
+    <div class="login-bg-circle"></div>
+    <div class="login-bg-circle"></div>
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">🌿</div>
+        <h1>Sistema Financiero</h1>
+        <p>COLEGIO LAS PALMAS · REP. DOM.</p>
+      </div>
+      <div id="login-err" class="login-err" style="display:none">⚠️ Usuario o contraseña incorrectos.</div>
+      <div class="lf">
+        <label>Usuario</label>
+        <input class="lf" id="inp-user" type="text" placeholder="Ingrese su usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="lf">
+        <label>Contraseña</label>
+        <input id="inp-pass" type="password" placeholder="Ingrese su contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn-login" id="btn-login" onclick="doLogin()">
+        <span id="login-btn-txt">Iniciar Sesión</span>
+      </button>
+      <div class="login-demo">
+        <strong>Accesos de demostración:</strong><br/>
+        👑 admin / admin123 &nbsp;—&nbsp; Administrador<br/>
+        📋 asistente / asist123 &nbsp;—&nbsp; Asistente<br/>
+        👤 empleado / empl123 &nbsp;—&nbsp; Empleado
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar" id="app-topbar">
+    <div class="topbar-left">
+      <span>📍 Carretera Las Palmas, Bonao, Monseñor Nouel, Rep. Dom.</span>
+      <span>📞 809-832-9405</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#">Inicio</a>
+      <a href="#">Contacto</a>
+      <span class="topbar-tag" id="topbar-role">ADMIN</span>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="app-navbar">
+    <a class="logo" href="#">
+      <div class="logo-emblem"></div>
+      <div class="logo-text-wrap">
+        <span class="logo-name">Colegio Las Palmas</span>
+        <span class="logo-sub">Sistema Financiero</span>
+      </div>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <button class="nav-link active" id="nav-dashboard"   onclick="goPage('dashboard')">📊 Dashboard</button>
+      <button class="nav-link" id="nav-movimientos" onclick="goPage('movimientos')">💰 Movimientos</button>
+      <button class="nav-link" id="nav-cuentas"     onclick="goPage('cuentas')">📋 Cuentas</button>
+      <button class="nav-link" id="nav-reportes"    onclick="goPage('reportes')">📄 Reportes</button>
+      <button class="nav-link" id="nav-config"      onclick="goPage('configuracion')">⚙️ Config.</button>
+      <button class="nav-link" id="nav-usuarios"    onclick="goPage('usuarios')">👥 Usuarios</button>
+    </div>
+    <div class="nav-user" id="nav-user">
+      <div class="nav-avatar" id="nav-avatar">A</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--hc-dark)" id="nav-uname">Admin</div>
+        <span class="badge badge-admin" id="nav-urole">admin</span>
+      </div>
+      <button class="nav-logout" onclick="doLogout()">← Salir</button>
+    </div>
+    <button class="hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
+  </nav>
+  <hr class="hc-divider"/>
+
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mobile-nav">
+    <button class="mobile-link active" id="mnav-dashboard"   onclick="goPage('dashboard');toggleMobileNav()">📊 Dashboard</button>
+    <button class="mobile-link" id="mnav-movimientos" onclick="goPage('movimientos');toggleMobileNav()">💰 Movimientos</button>
+    <button class="mobile-link" id="mnav-cuentas"     onclick="goPage('cuentas');toggleMobileNav()">📋 Cuentas</button>
+    <button class="mobile-link" id="mnav-reportes"    onclick="goPage('reportes');toggleMobileNav()">📄 Reportes</button>
+    <button class="mobile-link" id="mnav-config"      onclick="goPage('configuracion');toggleMobileNav()">⚙️ Configuración</button>
+    <button class="mobile-link" id="mnav-usuarios"    onclick="goPage('usuarios');toggleMobileNav()">👥 Usuarios</button>
+    <button class="mobile-link" style="color:var(--hc-red);margin-top:4px" onclick="doLogout()">← Cerrar Sesión</button>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h2>Dashboard</h2>
+        <p id="dash-subtitle">Resumen financiero del mes</p>
+      </div>
+    </div>
+    <div class="page-wrap">
+      <div class="stats-row" id="dash-stats"></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Tendencia — Últimos 6 meses</div>
+          <div class="chart-wrap" id="dash-chart">
+            <div class="empty"><div class="empty-icon">📊</div><p>Sin datos aún</p></div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--hc-gray-l)">
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--hc-gray)"><div style="width:10px;height:10px;background:#e8f5ee;border:1px solid var(--hc-green);border-radius:2px"></div> Ingresos</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--hc-gray)"><div style="width:10px;height:10px;background:var(--hc-red-l);border:1px solid var(--hc-red);border-radius:2px"></div> Gastos</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Cuentas del Mes</div>
+          <div id="dash-top-cuentas"><div class="empty"><div class="empty-icon">📋</div><p>Sin movimientos este mes</p></div></div>
+        </div>
+      </div>
+      <div class="card" id="dash-balance-banner" style="margin-top:20px;background:linear-gradient(135deg,var(--hc-green),var(--hc-dark));display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="color:rgba(255,255,255,.6);font-size:12px;margin-bottom:4px" id="dash-bal-label">Balance</div>
+          <div style="font-family:'Playfair Display',serif;font-size:clamp(22px,4vw,34px);font-weight:700" id="dash-bal-value">$0.00</div>
+        </div>
+        <button class="btn btn-gold" onclick="goPage('reportes')" style="flex-shrink:0">Ver Reporte →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MOVIMIENTOS ═══ -->
+  <div class="page" id="page-movimientos">
+    <div class="page-header">
+      <div><h2>Movimientos</h2><p>Registro de ingresos y gastos</p></div>
+      <button class="btn btn-gold" id="btn-nuevo-mov" onclick="openMovModal()">+ Nuevo Movimiento</button>
+    </div>
+    <div class="page-wrap">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <select class="inp" id="mov-year-sel" style="width:auto;font-size:13px;padding:6px 10px" onchange="renderMovimientos()"></select>
+        <div class="month-bar" id="mov-month-bar"></div>
+      </div>
+      <div class="stats-row" id="mov-stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px"></div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+          <div class="tabs" id="mov-tabs">
+            <button class="tab active" onclick="setMovFilter('todos',this)">Todos</button>
+            <button class="tab" onclick="setMovFilter('ingreso',this)">Ingresos</button>
+            <button class="tab" onclick="setMovFilter('gasto',this)">Gastos</button>
+          </div>
+          <span style="font-size:12px;color:var(--hc-gray)" id="mov-count">0 registros</span>
+        </div>
+        <div id="mov-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CUENTAS ═══ -->
+  <div class="page" id="page-cuentas">
+    <div class="page-header">
+      <div><h2>Cuentas</h2><p>Gestión de cuentas contables</p></div>
+      <button class="btn btn-gold" onclick="openCuentaModal()">+ Nueva Cuenta</button>
+    </div>
+    <div class="page-wrap">
+      <div class="tabs" id="cuentas-tabs">
+        <button class="tab active" onclick="setCuentaFilter('todos',this)">Todas</button>
+        <button class="tab" onclick="setCuentaFilter('ingreso',this)">Ingresos</button>
+        <button class="tab" onclick="setCuentaFilter('gasto',this)">Gastos</button>
+      </div>
+      <div id="cuentas-grid" class="three-col"></div>
+    </div>
+  </div>
+
+  <!-- ═══ REPORTES ═══ -->
+  <div class="page" id="page-reportes">
+    <div class="page-header">
+      <div><h2>Reportes</h2><p>Cuadre mensual</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,.4)" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-gold" onclick="exportExcel()">📊 Exportar Excel</button>
+      </div>
+    </div>
+    <div class="page-wrap">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <select class="inp" id="rep-year-sel" style="width:auto;font-size:13px;padding:6px 10px" onchange="renderReporte()"></select>
+        <div class="month-bar" id="rep-month-bar"></div>
+      </div>
+      <div id="reporte-content"></div>
+    </div>
+  </div>
+
+  <!-- ═══ CONFIGURACIÓN ═══ -->
+  <div class="page" id="page-configuracion">
+    <div class="page-header"><div><h2>Configuración</h2><p>Datos del colegio</p></div></div>
+    <div class="page-wrap" style="max-width:700px">
+      <div class="card">
+        <div class="card-title">🏫 Información del Colegio</div>
+        <div class="cfg-grid">
+          <div class="fgroup"><label class="lbl">Nombre del Colegio</label><input class="inp" id="cfg-nombre"/></div>
+          <div class="fgroup"><label class="lbl">RIF / RNC</label><input class="inp" id="cfg-rif"/></div>
+          <div class="fgroup"><label class="lbl">Teléfono</label><input class="inp" id="cfg-tel" inputmode="tel"/></div>
+          <div class="fgroup"><label class="lbl">Email</label><input class="inp" id="cfg-email" type="email" inputmode="email"/></div>
+        </div>
+        <div class="fgroup"><label class="lbl">Dirección</label><input class="inp" id="cfg-dir"/></div>
+        <div class="fgroup"><label class="lbl">Director(a)</label><input class="inp" id="cfg-director"/></div>
+        <button class="btn btn-green btn-w" onclick="saveConfig()">💾 Guardar Configuración</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ USUARIOS ═══ -->
+  <div class="page" id="page-usuarios">
+    <div class="page-header">
+      <div><h2>Usuarios</h2><p>Gestión de accesos y roles</p></div>
+      <button class="btn btn-gold" onclick="openUserModal()">+ Nuevo Usuario</button>
+    </div>
+    <div class="page-wrap">
+      <div id="users-list"></div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-title">📋 Roles y Permisos</div>
+        <div class="three-col">
+          <div style="background:#e8ecff;border-radius:10px;padding:16px">
+            <div style="font-weight:700;font-size:13px;color:#3b4fd8;margin-bottom:8px">👑 Administrador</div>
+            <div style="font-size:12px;color:#3b4fd8;line-height:1.9">✓ Crear/editar cuentas<br/>✓ Registrar movimientos<br/>✓ Exportar reportes<br/>✓ Configuración<br/>✓ Gestionar usuarios</div>
+          </div>
+          <div style="background:#fff3e8;border-radius:10px;padding:16px">
+            <div style="font-weight:700;font-size:13px;color:#c47a2b;margin-bottom:8px">📋 Asistente</div>
+            <div style="font-size:12px;color:#c47a2b;line-height:1.9">✓ Registrar movimientos<br/>✓ Ver reportes<br/>✓ Exportar Excel<br/>✗ Configuración<br/>✗ Usuarios</div>
+          </div>
+          <div style="background:var(--hc-gray-l);border-radius:10px;padding:16px">
+            <div style="font-weight:700;font-size:13px;color:var(--hc-gray);margin-bottom:8px">👤 Empleado</div>
+            <div style="font-size:12px;color:var(--hc-gray);line-height:1.9">✓ Ver reportes<br/>✓ Imprimir<br/>✓ Exportar Excel<br/>✗ Movimientos<br/>✗ Configuración</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <hr class="hc-divider"/>
+  <footer class="site-footer">
+    <div>
+      <div class="footer-logo">🌿 Colegio Las Palmas</div>
+      <div style="margin-top:4px">Sistema de Gestión Financiera · Bonao, Monseñor Nouel, Rep. Dom.</div>
+    </div>
+    <div>© 2025 Derechos reservados &nbsp;·&nbsp; <a href="#">Hogar Campestre Las Palmas</a></div>
+  </footer>
+</div>
+
+<!-- ══════════════ MODAL MOVIMIENTO ══════════════ -->
+<div class="modal-bg" id="modal-mov" style="display:none" onclick="if(event.target===this)closeModal('modal-mov')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-mov-title">Nuevo Movimiento</h3>
+      <button class="modal-close" onclick="closeModal('modal-mov')">×</button>
+    </div>
+    <div class="fgroup">
+      <label class="lbl">Tipo</label>
+      <div class="tabs">
+        <button class="tab active" id="mov-tab-ing" onclick="setMovTipo('ingreso',this)">↑ Ingreso</button>
+        <button class="tab" id="mov-tab-gas" onclick="setMovTipo('gasto',this)">↓ Gasto</button>
+      </div>
+    </div>
+    <div class="fgroup"><label class="lbl">Cuenta</label><select class="inp" id="mov-cuenta"></select></div>
+    <div class="fgroup"><label class="lbl">Monto (USD)</label><input class="inp" id="mov-monto" type="number" step="0.01" min="0" placeholder="0.00" inputmode="decimal"/></div>
+    <div class="fgroup"><label class="lbl">Fecha</label><input class="inp" id="mov-fecha" type="date"/></div>
+    <div class="fgroup"><label class="lbl">Descripción (opcional)</label><input class="inp" id="mov-desc" placeholder="Descripción del movimiento..."/></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('modal-mov')">Cancelar</button>
+      <button class="btn btn-green" onclick="saveMov()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL CUENTA ══════════════ -->
+<div class="modal-bg" id="modal-cuenta" style="display:none" onclick="if(event.target===this)closeModal('modal-cuenta')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-cuenta-title">Nueva Cuenta</h3>
+      <button class="modal-close" onclick="closeModal('modal-cuenta')">×</button>
+    </div>
+    <div class="fgroup"><label class="lbl">Nombre</label><input class="inp" id="cuenta-nombre" placeholder="Nombre de la cuenta"/></div>
+    <div class="fgroup">
+      <label class="lbl">Tipo</label>
+      <div class="tabs">
+        <button class="tab active" id="cta-tab-ing" onclick="setCtaTipo('ingreso',this)">↑ Ingreso</button>
+        <button class="tab" id="cta-tab-gas" onclick="setCtaTipo('gasto',this)">↓ Gasto</button>
+      </div>
+    </div>
+    <div class="fgroup"><label class="lbl">Descripción</label><input class="inp" id="cuenta-desc" placeholder="Descripción opcional..."/></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('modal-cuenta')">Cancelar</button>
+      <button class="btn btn-green" onclick="saveCuenta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL USUARIO ══════════════ -->
+<div class="modal-bg" id="modal-user" style="display:none" onclick="if(event.target===this)closeModal('modal-user')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-user-title">Nuevo Usuario</h3>
+      <button class="modal-close" onclick="closeModal('modal-user')">×</button>
+    </div>
+    <div class="fgroup"><label class="lbl">Nombre Completo</label><input class="inp" id="user-name" placeholder="Nombre del usuario"/></div>
+    <div class="fgroup"><label class="lbl">Usuario</label><input class="inp" id="user-username" placeholder="nombre.usuario"/></div>
+    <div class="fgroup"><label class="lbl">Contraseña</label><input class="inp" id="user-pass" type="password" placeholder="Contraseña"/></div>
+    <div class="fgroup">
+      <label class="lbl">Rol</label>
+      <select class="inp" id="user-role">
+        <option value="admin">Administrador</option>
+        <option value="asistente">Asistente</option>
+        <option value="empleado">Empleado</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-green" onclick="saveUser()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ JAVASCRIPT ══════════════ -->
+<script>
+/* ─────────────────── ESTADO INICIAL ─────────────────── */
+const INIT_USERS = [
+  {id:1,username:'admin',    password:'admin123',  role:'admin',     name:'Administrador'},
+  {id:2,username:'asistente',password:'asist123',  role:'asistente', name:'María López'},
+  {id:3,username:'empleado', password:'empl123',   role:'empleado',  name:'Carlos Ruiz'},
+];
+const INIT_CUENTAS = [
+  {id:1,nombre:'Mensualidades',tipo:'ingreso',descripcion:'Pagos mensuales de alumnos'},
+  {id:2,nombre:'Inscripciones',tipo:'ingreso',descripcion:'Cobros de inscripción'},
+  {id:3,nombre:'Actividades Extracurriculares',tipo:'ingreso',descripcion:'Ingresos por actividades'},
+  {id:4,nombre:'Nómina Docente',tipo:'gasto',descripcion:'Pago a profesores'},
+  {id:5,nombre:'Servicios Públicos',tipo:'gasto',descripcion:'Agua, luz, gas'},
+  {id:6,nombre:'Mantenimiento',tipo:'gasto',descripcion:'Reparaciones y mantenimiento'},
+  {id:7,nombre:'Material Escolar',tipo:'gasto',descripcion:'Útiles y materiales'},
+  {id:8,nombre:'Administración',tipo:'gasto',descripcion:'Gastos administrativos'},
+];
+const INIT_CONFIG = {
+  nombre:'Colegio Las Palmas',rif:'J-12345678-9',
+  direccion:'Carretera Las Palmas, Bonao, Monseñor Nouel',
+  telefono:'809-832-9405',email:'admin@colegiolaspalmas.edu',
+  director:'Prof. Ana Martínez'
+};
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+/* ─────────────────── STORAGE ─────────────────── */
+const ls = (k,d) => { try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;} };
+const ss = (k,v) => { try{localStorage.setItem(k,JSON.stringify(v));}catch{} };
+
+let STATE = {
+  currentUser: null,
+  users:       ls('sf_users',   INIT_USERS),
+  cuentas:     ls('sf_cuentas', INIT_CUENTAS),
+  movimientos: ls('sf_movs',    []),
+  config:      ls('sf_config',  INIT_CONFIG),
+  currentMonth: new Date().getMonth(),
+  currentYear:  new Date().getFullYear(),
+  movFilter:   'todos',
+  cuentaFilter:'todos',
+  editMovId:   null,
+  editCuentaId:null,
+  editUserId:  null,
+  movTipo:     'ingreso',
+  ctaTipo:     'ingreso',
+};
+
+const saveState = () => {
+  ss('sf_users',   STATE.users);
+  ss('sf_cuentas', STATE.cuentas);
+  ss('sf_movs',    STATE.movimientos);
+  ss('sf_config',  STATE.config);
+};
+
+/* ─────────────────── HELPERS ─────────────────── */
+const mk = (y,m) => `${y}-${String(m+1).padStart(2,'0')}`;
+const fmt = n => '$'+parseFloat(n).toLocaleString('es-DO',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN = n => parseFloat(n).toFixed(2);
+const isMobile = () => window.innerWidth < 768;
+
+function notify(msg, type='success'){
+  const el = document.getElementById('notif');
+  el.className = `notif notif-${type==='success'?'s':'e'}`;
+  el.innerHTML = (type==='success'?'✓ ':'✗ ') + msg;
+  el.style.display = 'flex';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.style.display='none', 3500);
+}
+
+/* ─────────────────── LOGIN ─────────────────── */
+function doLogin(){
+  const u = document.getElementById('inp-user').value.trim();
+  const p = document.getElementById('inp-pass').value;
+  const btn = document.getElementById('btn-login');
+  const txt = document.getElementById('login-btn-txt');
+  const err = document.getElementById('login-err');
+  err.style.display='none';
+  btn.disabled=true;
+  txt.innerHTML='<span class="spin"></span> Ingresando...';
+  setTimeout(()=>{
+    const found = STATE.users.find(x=>x.username===u&&x.password===p);
+    if(found){
+      STATE.currentUser = found;
+      document.getElementById('login-page').style.display='none';
+      document.getElementById('app').style.display='block';
+      applyRoleRestrictions();
+      renderAll();
+    } else {
+      err.style.display='flex';
+      btn.disabled=false;
+      txt.textContent='Iniciar Sesión';
+    }
+  },700);
+}
+
+function doLogout(){
+  STATE.currentUser = null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('login-page').style.flexDirection='column';
+  document.getElementById('inp-user').value='';
+  document.getElementById('inp-pass').value='';
+  document.getElementById('login-err').style.display='none';
+  document.getElementById('btn-login').disabled=false;
+  document.getElementById('login-btn-txt').textContent='Iniciar Sesión';
+}
+
+/* ─────────────────── ROLES ─────────────────── */
+function applyRoleRestrictions(){
+  const u = STATE.currentUser;
+  const hide = id => { const el=document.getElementById(id); if(el)el.style.display='none'; };
+  const show = id => { const el=document.getElementById(id); if(el)el.style.display=''; };
+  // update nav user info
+  document.getElementById('nav-avatar').textContent = u.name.charAt(0).toUpperCase();
+  document.getElementById('nav-uname').textContent = u.name;
+  const rb = document.getElementById('nav-urole');
+  rb.textContent = u.role;
+  rb.className = `badge badge-${u.role}`;
+  document.getElementById('topbar-role').textContent = u.role.toUpperCase();
+  // hide links by role
+  const canAdmin = u.role==='admin';
+  const canEdit  = u.role==='admin'||u.role==='asistente';
+  if(!canAdmin){ hide('nav-cuentas'); hide('nav-config'); hide('nav-usuarios'); hide('mnav-cuentas'); hide('mnav-config'); hide('mnav-usuarios'); }
+  else { show('nav-cuentas'); show('nav-config'); show('nav-usuarios'); show('mnav-cuentas'); show('mnav-config'); show('mnav-usuarios'); }
+  if(!canEdit){ hide('nav-movimientos'); hide('mnav-movimientos'); hide('btn-nuevo-mov'); }
+  else { show('nav-movimientos'); show('mnav-movimientos'); show('btn-nuevo-mov'); }
+}
+
+/* ─────────────────── NAVEGACIÓN ─────────────────── */
+const PAGES = ['dashboard','movimientos','cuentas','reportes','configuracion','usuarios'];
+
+function goPage(p){
+  PAGES.forEach(id=>{
+    document.getElementById(`page-${id}`).classList.toggle('active', id===p);
+    const nl = document.getElementById(`nav-${id==='configuracion'?'config':id}`);
+    const ml = document.getElementById(`mnav-${id==='configuracion'?'config':id}`);
+    if(nl) nl.classList.toggle('active', id===p);
+    if(ml) ml.classList.toggle('active', id===p);
+  });
+  if(p==='dashboard')    renderDashboard();
+  if(p==='movimientos')  renderMovimientos();
+  if(p==='cuentas')      renderCuentas();
+  if(p==='reportes')     renderReporte();
+  if(p==='configuracion') loadConfig();
+  if(p==='usuarios')     renderUsuarios();
+  window.scrollTo(0,0);
+}
+
+function toggleMobileNav(){
+  document.getElementById('mobile-nav').classList.toggle('open');
+}
+
+/* ─────────────────── RENDER ALL ─────────────────── */
+function renderAll(){
+  buildYearSels();
+  buildMonthBars();
+  goPage('dashboard');
+}
+
+function buildYearSels(){
+  const y = STATE.currentYear;
+  ['mov-year-sel','rep-year-sel'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML = [y-1,y,y+1].map(yr=>`<option value="${yr}" ${yr===y?'selected':''}>${yr}</option>`).join('');
+  });
+}
+
+function buildMonthBars(){
+  ['mov','rep'].forEach(prefix=>{
+    const bar = document.getElementById(`${prefix}-month-bar`);
+    if(!bar) return;
+    const y = parseInt(document.getElementById(`${prefix}-year-sel`).value)||STATE.currentYear;
+    bar.innerHTML = MESES.map((m,i)=>{
+      const key = mk(y,i);
+      const has = STATE.movimientos.some(mv=>mv.periodo===key);
+      return `<button class="mchip ${i===STATE.currentMonth?'active':''} ${has&&i!==STATE.currentMonth?'has':''}"
+        onclick="setMonth(${i},'${prefix}')">${m.slice(0,3)}</button>`;
+    }).join('');
+  });
+}
+
+function setMonth(m, prefix){
+  STATE.currentMonth = m;
+  buildMonthBars();
+  if(prefix==='mov') renderMovimientos();
+  else renderReporte();
+}
+
+/* ─────────────────── DASHBOARD ─────────────────── */
+function renderDashboard(){
+  const y=STATE.currentYear, m=STATE.currentMonth;
+  const key = mk(y,m);
+  const movMes = STATE.movimientos.filter(x=>x.periodo===key);
+  const ti = movMes.filter(x=>x.tipo==='ingreso').reduce((s,x)=>s+x.monto,0);
+  const tg = movMes.filter(x=>x.tipo==='gasto').reduce((s,x)=>s+x.monto,0);
+  const bal = ti-tg;
+
+  document.getElementById('dash-subtitle').textContent = `${MESES[m]} ${y} · Resumen financiero`;
+
+  // Stats cards
+  document.getElementById('dash-stats').innerHTML = [
+    {l:'Ingresos del Mes',v:fmt(ti),c:'var(--hc-green)',bg:'#e8f5ee',i:'↑'},
+    {l:'Gastos del Mes',v:fmt(tg),c:'var(--hc-red)',bg:'var(--hc-red-l)',i:'↓'},
+    {l:'Balance',v:fmt(bal),c:bal>=0?'var(--hc-green)':'var(--hc-red)',bg:bal>=0?'#e8f5ee':'var(--hc-red-l)',i:'⚖'},
+    {l:'Movimientos',v:movMes.length,c:'var(--hc-dark)',bg:'var(--hc-gray-l)',i:'#'},
+  ].map(s=>`
+    <div class="stat-card">
+      <div class="stat-row-inner">
+        <span class="stat-label">${s.l}</span>
+        <div class="stat-icon" style="background:${s.bg};color:${s.c}">${s.i}</div>
+      </div>
+      <div class="stat-value" style="color:${s.c}">${s.v}</div>
+    </div>`).join('');
+
+  // Chart
+  const months = [...new Set(STATE.movimientos.map(x=>x.periodo))].sort().slice(-6);
+  const chart = document.getElementById('dash-chart');
+  if(!months.length){ chart.innerHTML=`<div class="empty"><div class="empty-icon">📊</div><p>Sin datos aún</p></div>`; }
+  else {
+    const cd = months.map(p=>{
+      const ms=STATE.movimientos.filter(x=>x.periodo===p);
+      return {label:p.split('-')[1]+'/'+p.split('-')[0].slice(2),
+        ing:ms.filter(x=>x.tipo==='ingreso').reduce((s,x)=>s+x.monto,0),
+        gas:ms.filter(x=>x.tipo==='gasto').reduce((s,x)=>s+x.monto,0)};
+    });
+    const mx = Math.max(...cd.map(d=>Math.max(d.ing,d.gas)),1);
+    chart.innerHTML = cd.map(d=>`
+      <div class="bar-group">
+        <div class="bar-cols">
+          <div class="bar" style="background:#e8f5ee;border:1px solid var(--hc-green);height:${(d.ing/mx)*100}%"></div>
+          <div class="bar" style="background:var(--hc-red-l);border:1px solid var(--hc-red);height:${(d.gas/mx)*100}%"></div>
+        </div>
+        <span class="bar-lbl">${d.label}</span>
+      </div>`).join('');
+  }
+
+  // Top cuentas
+  const top = STATE.cuentas.map(c=>({...c,total:movMes.filter(x=>x.cuentaId===c.id).reduce((s,x)=>s+x.monto,0)}))
+    .filter(c=>c.total>0).sort((a,b)=>b.total-a.total).slice(0,5);
+  const tc = document.getElementById('dash-top-cuentas');
+  if(!top.length){ tc.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><p>Sin movimientos este mes</p></div>`; }
+  else {
+    tc.innerHTML = top.map(c=>`
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:13px;font-weight:600">${c.nombre}</span>
+          <span style="font-size:13px;font-weight:700;color:${c.tipo==='ingreso'?'var(--hc-green)':'var(--hc-red)'}">
+            ${c.tipo==='ingreso'?'+':'-'}${fmt(c.total)}
+          </span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${(c.total/(top[0].total||1))*100}%;background:${c.tipo==='ingreso'?'var(--hc-green)':'var(--hc-red)'}"></div></div>
+      </div>`).join('');
+  }
+
+  // Balance banner
+  const bv = document.getElementById('dash-bal-value');
+  bv.textContent = (bal>=0?'+':'')+fmt(bal);
+  bv.style.color = bal>=0?'var(--hc-gold)':'#ff8a80';
+  document.getElementById('dash-bal-label').textContent = `Balance ${MESES[m]} ${y}`;
+}
+
+/* ─────────────────── MOVIMIENTOS ─────────────────── */
+let movFilterActive='todos';
+
+function renderMovimientos(){
+  const y = parseInt(document.getElementById('mov-year-sel').value)||STATE.currentYear;
+  STATE.currentYear = y;
+  const key = mk(y, STATE.currentMonth);
+  const movMes = STATE.movimientos.filter(x=>x.periodo===key);
+  const filtered = movFilterActive==='todos'?movMes:movMes.filter(x=>x.tipo===movFilterActive);
+  const ti = movMes.filter(x=>x.tipo==='ingreso').reduce((s,x)=>s+x.monto,0);
+  const tg = movMes.filter(x=>x.tipo==='gasto').reduce((s,x)=>s+x.monto,0);
+
+  // Stats
+  document.getElementById('mov-stats').innerHTML = [
+    {l:'Ingresos',v:fmt(ti),c:'var(--hc-green)',bg:'#e8f5ee'},
+    {l:'Gastos',v:fmt(tg),c:'var(--hc-red)',bg:'var(--hc-red-l)'},
+    {l:'Balance',v:fmt(ti-tg),c:(ti-tg)>=0?'var(--hc-green)':'var(--hc-red)',bg:(ti-tg)>=0?'#e8f5ee':'var(--hc-red-l)'},
+  ].map(s=>`<div class="stat-card"><div class="stat-row-inner"><span class="stat-label">${s.l}</span></div><div class="stat-value" style="color:${s.c}">${s.v}</div></div>`).join('');
+
+  document.getElementById('mov-count').textContent = `${filtered.length} registros`;
+  const canEdit = ['admin','asistente'].includes(STATE.currentUser?.role);
+  const list = document.getElementById('mov-list');
+
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon">💸</div><p>Sin movimientos en ${MESES[STATE.currentMonth]} ${y}</p></div>`;
+    return;
+  }
+
+  const sorted = [...filtered].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+
+  if(isMobile()){
+    list.innerHTML = sorted.map(mv=>{
+      const c = STATE.cuentas.find(x=>x.id===mv.cuentaId);
+      return `<div class="mov-card">
+        <div class="mov-row">
+          <span style="font-weight:700;font-size:14px">${c?.nombre||'—'}</span>
+          <span style="font-weight:700;font-size:15px;color:${mv.tipo==='ingreso'?'var(--hc-green)':'var(--hc-red)'}">
+            ${mv.tipo==='ingreso'?'+':'-'}${fmt(mv.monto)}
+          </span>
+        </div>
+        <div class="mov-row" style="margin-top:5px">
+          <span style="font-size:12px;color:var(--hc-gray)">${mv.descripcion||'Sin descripción'}</span>
+          <span class="badge badge-${mv.tipo==='ingreso'?'i':'g'}">${mv.tipo}</span>
+        </div>
+        <div class="mov-row" style="margin-top:5px">
+          <span style="font-size:12px;color:var(--hc-gray)">📅 ${new Date(mv.fecha+'T12:00').toLocaleDateString('es-DO')}</span>
+          ${canEdit?`<div style="display:flex;gap:5px">
+            <button class="btn btn-outline btn-sm" onclick="editMov(${mv.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteMov(${mv.id})">🗑️</button>
+          </div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    list.innerHTML = `<div class="tbl-wrap"><table>
+      <thead><tr><th>Fecha</th><th>Cuenta</th><th>Descripción</th><th>Tipo</th><th>Monto</th>${canEdit?'<th>Acc.</th>':''}</tr></thead>
+      <tbody>${sorted.map(mv=>{
+        const c=STATE.cuentas.find(x=>x.id===mv.cuentaId);
+        return `<tr>
+          <td style="color:var(--hc-gray);font-size:12px">${new Date(mv.fecha+'T12:00').toLocaleDateString('es-DO')}</td>
+          <td style="font-weight:600">${c?.nombre||'—'}</td>
+          <td style="color:var(--hc-gray)">${mv.descripcion||'—'}</td>
+          <td><span class="badge badge-${mv.tipo==='ingreso'?'i':'g'}">${mv.tipo}</span></td>
+          <td class="${mv.tipo==='ingreso'?'amount-pos':'amount-neg'}">${mv.tipo==='ingreso'?'+':'-'}${fmt(mv.monto)}</td>
+          ${canEdit?`<td><div style="display:flex;gap:4px">
+            <button class="btn btn-outline btn-sm" onclick="editMov(${mv.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteMov(${mv.id})">🗑️</button>
+          </div></td>`:''}
+        </tr>`;
+      }).join('')}</tbody></table></div>`;
+  }
+}
+
+function setMovFilter(f, el){
+  movFilterActive = f;
+  document.querySelectorAll('#mov-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMovimientos();
+}
+
+/* Modal movimiento */
+let movTipoActive='ingreso';
+let editMovId=null;
+
+function openMovModal(id=null){
+  editMovId=id;
+  movTipoActive = id ? STATE.movimientos.find(x=>x.id===id)?.tipo||'ingreso' : 'ingreso';
+  const mv = id ? STATE.movimientos.find(x=>x.id===id) : null;
+  document.getElementById('modal-mov-title').textContent = id?'Editar Movimiento':'Nuevo Movimiento';
+  document.getElementById('mov-monto').value = mv?.monto||'';
+  document.getElementById('mov-fecha').value = mv?.fecha||new Date().toISOString().split('T')[0];
+  document.getElementById('mov-desc').value  = mv?.descripcion||'';
+  setMovTipoUI(movTipoActive);
+  fillMovCuentas(movTipoActive, mv?.cuentaId);
+  document.getElementById('modal-mov').style.display='flex';
+}
+
+function editMov(id){ openMovModal(id); }
+
+function setMovTipo(t, el){
+  movTipoActive=t;
+  document.querySelectorAll('#modal-mov .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  fillMovCuentas(t);
+}
+
+function setMovTipoUI(t){
+  document.getElementById('mov-tab-ing').classList.toggle('active', t==='ingreso');
+  document.getElementById('mov-tab-gas').classList.toggle('active', t==='gasto');
+}
+
+function fillMovCuentas(tipo, sel=null){
+  const s = document.getElementById('mov-cuenta');
+  const cuentas = STATE.cuentas.filter(c=>c.tipo===tipo);
+  s.innerHTML = `<option value="">Seleccionar cuenta...</option>`+cuentas.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${c.nombre}</option>`).join('');
+}
+
+function saveMov(){
+  const cuentaId = parseInt(document.getElementById('mov-cuenta').value);
+  const monto    = parseFloat(document.getElementById('mov-monto').value);
+  const fecha    = document.getElementById('mov-fecha').value;
+  const desc     = document.getElementById('mov-desc').value.trim();
+  if(!cuentaId||isNaN(monto)||monto<=0||!fecha){ notify('Complete todos los campos correctamente','error'); return; }
+  const y = parseInt(document.getElementById('mov-year-sel').value)||STATE.currentYear;
+  const periodo = mk(y, STATE.currentMonth);
+  if(editMovId){
+    STATE.movimientos = STATE.movimientos.map(x=>x.id===editMovId?{...x,tipo:movTipoActive,cuentaId,monto,fecha,descripcion:desc}:x);
+    notify('Movimiento actualizado');
+  } else {
+    STATE.movimientos.push({id:Date.now(),tipo:movTipoActive,cuentaId,monto,fecha,descripcion:desc,periodo,usuario:STATE.currentUser.name});
+    notify('Movimiento registrado');
+  }
+  saveState();
+  closeModal('modal-mov');
+  renderMovimientos();
+  buildMonthBars();
+}
+
+function deleteMov(id){
+  if(!confirm('¿Eliminar este movimiento?')) return;
+  STATE.movimientos = STATE.movimientos.filter(x=>x.id!==id);
+  saveState(); renderMovimientos(); buildMonthBars(); notify('Movimiento eliminado');
+}
+
+/* ─────────────────── CUENTAS ─────────────────── */
+let cuentaFilterActive='todos';
+let ctaTipoActive='ingreso';
+let editCuentaId=null;
+
+function renderCuentas(){
+  const filtered = cuentaFilterActive==='todos'?STATE.cuentas:STATE.cuentas.filter(c=>c.tipo===cuentaFilterActive);
+  const grid = document.getElementById('cuentas-grid');
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty card" style="grid-column:1/-1"><div class="empty-icon">📋</div><p>Sin cuentas</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(c=>`
+    <div class="card" style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px">${c.nombre}</div>
+          <span class="badge badge-${c.tipo==='ingreso'?'i':'g'}">${c.tipo}</span>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-outline btn-sm" onclick="editCuenta(${c.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCuenta(${c.id})">🗑️</button>
+        </div>
+      </div>
+      ${c.descripcion?`<p style="font-size:12px;color:var(--hc-gray);line-height:1.6">${c.descripcion}</p>`:''}
+    </div>`).join('');
+}
+
+function setCuentaFilter(f,el){
+  cuentaFilterActive=f;
+  document.querySelectorAll('#cuentas-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCuentas();
+}
+
+function openCuentaModal(id=null){
+  editCuentaId=id;
+  const c = id?STATE.cuentas.find(x=>x.id===id):null;
+  ctaTipoActive=c?.tipo||'ingreso';
+  document.getElementById('modal-cuenta-title').textContent=id?'Editar Cuenta':'Nueva Cuenta';
+  document.getElementById('cuenta-nombre').value=c?.nombre||'';
+  document.getElementById('cuenta-desc').value=c?.descripcion||'';
+  setCtaTipoUI(ctaTipoActive);
+  document.getElementById('modal-cuenta').style.display='flex';
+}
+
+function editCuenta(id){ openCuentaModal(id); }
+
+function setCtaTipo(t,el){
+  ctaTipoActive=t;
+  document.querySelectorAll('#modal-cuenta .tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setCtaTipoUI(t){
+  document.getElementById('cta-tab-ing').classList.toggle('active',t==='ingreso');
+  document.getElementById('cta-tab-gas').classList.toggle('active',t==='gasto');
+}
+
+function saveCuenta(){
+  const nombre=document.getElementById('cuenta-nombre').value.trim();
+  const desc=document.getElementById('cuenta-desc').value.trim();
+  if(!nombre){notify('Ingrese el nombre de la cuenta','error');return;}
+  if(editCuentaId){
+    STATE.cuentas=STATE.cuentas.map(c=>c.id===editCuentaId?{...c,nombre,tipo:ctaTipoActive,descripcion:desc}:c);
+    notify('Cuenta actualizada');
+  } else {
+    STATE.cuentas.push({id:Date.now(),nombre,tipo:ctaTipoActive,descripcion:desc});
+    notify('Cuenta creada');
+  }
+  saveState(); closeModal('modal-cuenta'); renderCuentas();
+}
+
+function deleteCuenta(id){
+  if(!confirm('¿Eliminar esta cuenta?'))return;
+  STATE.cuentas=STATE.cuentas.filter(c=>c.id!==id);
+  saveState(); renderCuentas(); notify('Cuenta eliminada');
+}
+
+/* ─────────────────── REPORTE ─────────────────── */
+function renderReporte(){
+  const y=parseInt(document.getElementById('rep-year-sel').value)||STATE.currentYear;
+  STATE.currentYear=y;
+  const key=mk(y,STATE.currentMonth);
+  const movMes=STATE.movimientos.filter(x=>x.periodo===key);
+  const ing=movMes.filter(x=>x.tipo==='ingreso');
+  const gas=movMes.filter(x=>x.tipo==='gasto');
+  const ti=ing.reduce((s,x)=>s+x.monto,0);
+  const tg=gas.reduce((s,x)=>s+x.monto,0);
+  const bal=ti-tg;
+  const ipc=STATE.cuentas.filter(c=>c.tipo==='ingreso').map(c=>({...c,movs:ing.filter(x=>x.cuentaId===c.id),total:ing.filter(x=>x.cuentaId===c.id).reduce((s,x)=>s+x.monto,0)})).filter(c=>c.total>0);
+  const gpc=STATE.cuentas.filter(c=>c.tipo==='gasto').map(c=>({...c,movs:gas.filter(x=>x.cuentaId===c.id),total:gas.filter(x=>x.cuentaId===c.id).reduce((s,x)=>s+x.monto,0)})).filter(c=>c.total>0);
+  const cfg=STATE.config;
+
+  const rowsIng = ipc.flatMap(c=>c.movs.map(m=>`
+    <tr><td>${c.nombre}</td><td style="color:var(--hc-gray)">${m.descripcion||'—'}</td>
+    <td style="color:var(--hc-gray);font-size:12px">${new Date(m.fecha+'T12:00').toLocaleDateString('es-DO')}</td>
+    <td class="amount-pos" style="text-align:right">${fmt(m.monto)}</td></tr>`)).join('');
+  const rowsGas = gpc.flatMap(c=>c.movs.map(m=>`
+    <tr><td>${c.nombre}</td><td style="color:var(--hc-gray)">${m.descripcion||'—'}</td>
+    <td style="color:var(--hc-gray);font-size:12px">${new Date(m.fecha+'T12:00').toLocaleDateString('es-DO')}</td>
+    <td class="amount-neg" style="text-align:right">-${fmt(m.monto)}</td></tr>`)).join('');
+
+  document.getElementById('reporte-content').innerHTML = `
+  <div class="card" id="report-print-area">
+    <!-- Cabecera estilo hogarcampestre -->
+    <div style="text-align:center;padding-bottom:24px;margin-bottom:24px;border-bottom:3px solid var(--hc-green)">
+      <div style="font-size:36px;margin-bottom:8px">🌿</div>
+      <div style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:var(--hc-green);margin-bottom:4px">${cfg.nombre}</div>
+      <div style="font-size:12px;color:var(--hc-gray);margin-bottom:2px">${cfg.rif} &nbsp;·&nbsp; ${cfg.direccion}</div>
+      <div style="font-size:12px;color:var(--hc-gray)">${cfg.telefono} &nbsp;·&nbsp; ${cfg.email}</div>
+      <div style="margin-top:14px;display:inline-block;background:var(--hc-green);color:white;padding:7px 22px;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.06em">
+        CUADRE MENSUAL — ${MESES[STATE.currentMonth].toUpperCase()} ${y}
+      </div>
+      <div style="font-size:12px;color:var(--hc-gray);margin-top:8px">Director(a): ${cfg.director}</div>
+    </div>
+
+    ${movMes.length===0?`<div class="empty"><div class="empty-icon">📄</div><p>Sin movimientos en este período</p></div>`:``}
+
+    ${ipc.length?`
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:var(--hc-green);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e8f5ee;display:flex;align-items:center;gap:6px">
+        <span style="background:var(--hc-green);color:white;padding:1px 8px;border-radius:3px;font-size:11px">↑</span> INGRESOS
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Cuenta</th><th>Descripción</th><th>Fecha</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody>${rowsIng}</tbody>
+      </table></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 14px;background:#e8f5ee;border-radius:0 0 8px 8px;margin-top:1px">
+        <span style="font-weight:700;font-size:13px;color:var(--hc-green)">TOTAL INGRESOS</span>
+        <span class="amount-pos" style="font-size:14px">+${fmt(ti)}</span>
+      </div>
+    </div>`:''}
+
+    ${gpc.length?`
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:var(--hc-red);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--hc-red-l);display:flex;align-items:center;gap:6px">
+        <span style="background:var(--hc-red);color:white;padding:1px 8px;border-radius:3px;font-size:11px">↓</span> GASTOS
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Cuenta</th><th>Descripción</th><th>Fecha</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody>${rowsGas}</tbody>
+      </table></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--hc-red-l);border-radius:0 0 8px 8px;margin-top:1px">
+        <span style="font-weight:700;font-size:13px;color:var(--hc-red)">TOTAL GASTOS</span>
+        <span class="amount-neg" style="font-size:14px">-${fmt(tg)}</span>
+      </div>
+    </div>`:''}
+
+    ${movMes.length?`
+    <div style="background:${bal>=0?'#e8f5ee':'var(--hc-red-l)'};border-radius:10px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <span style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:${bal>=0?'var(--hc-green)':'var(--hc-red)'}">BALANCE NETO</span>
+      <span style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:${bal>=0?'var(--hc-green)':'var(--hc-red)'}">
+        ${bal>=0?'+':''}${fmt(bal)}
+      </span>
+    </div>`:''}
+
+    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--hc-gray-l);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--hc-gray)">
+      <span>Generado: ${new Date().toLocaleDateString('es-DO',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span>
+      <span>${cfg.nombre} &nbsp;·&nbsp; Sistema Financiero</span>
+    </div>
+  </div>`;
+}
+
+function exportExcel(){
+  if(typeof XLSX==='undefined'){notify('La librería XLSX no está disponible','error');return;}
+  const y=parseInt(document.getElementById('rep-year-sel').value)||STATE.currentYear;
+  const key=mk(y,STATE.currentMonth);
+  const movMes=STATE.movimientos.filter(x=>x.periodo===key);
+  const ing=movMes.filter(x=>x.tipo==='ingreso');
+  const gas=movMes.filter(x=>x.tipo==='gasto');
+  const ti=ing.reduce((s,x)=>s+x.monto,0);
+  const tg=gas.reduce((s,x)=>s+x.monto,0);
+  const cfg=STATE.config;
+  const wb=XLSX.utils.book_new();
+  const wd=[
+    [cfg.nombre],[`RIF: ${cfg.rif}`],[cfg.direccion],[`Tel: ${cfg.telefono}`],[],
+    [`CUADRE MENSUAL — ${MESES[STATE.currentMonth].toUpperCase()} ${y}`],
+    [`Director(a): ${cfg.director}`],[],['INGRESOS'],['Cuenta','Descripción','Fecha','Monto'],
+  ];
+  STATE.cuentas.filter(c=>c.tipo==='ingreso').forEach(c=>{
+    ing.filter(m=>m.cuentaId===c.id).forEach(m=>wd.push([c.nombre,m.descripcion||'',m.fecha,fmtN(m.monto)]));
+  });
+  wd.push([],[`SUBTOTAL INGRESOS`,'','',fmtN(ti)],[],['GASTOS'],['Cuenta','Descripción','Fecha','Monto']);
+  STATE.cuentas.filter(c=>c.tipo==='gasto').forEach(c=>{
+    gas.filter(m=>m.cuentaId===c.id).forEach(m=>wd.push([c.nombre,m.descripcion||'',m.fecha,fmtN(m.monto)]));
+  });
+  wd.push([],[`SUBTOTAL GASTOS`,'','',fmtN(tg)],[],['BALANCE NETO','','',fmtN(ti-tg)],[],
+    [`Generado: ${new Date().toLocaleDateString('es-DO')}`]);
+  const ws=XLSX.utils.aoa_to_sheet(wd);
+  ws['!cols']=[{wch:30},{wch:38},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,`${MESES[STATE.currentMonth]} ${y}`);
+  const det=[['FECHA','TIPO','CUENTA','DESCRIPCIÓN','MONTO']];
+  [...movMes].sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).forEach(m=>{
+    const c=STATE.cuentas.find(x=>x.id===m.cuentaId);
+    det.push([m.fecha,m.tipo.toUpperCase(),c?.nombre||'',m.descripcion||'',fmtN(m.monto)]);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(det);
+  ws2['!cols']=[{wch:14},{wch:10},{wch:30},{wch:38},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Detalle');
+  XLSX.writeFile(wb,`Cuadre_${cfg.nombre.replace(/\s/g,'_')}_${MESES[STATE.currentMonth]}_${y}.xlsx`);
+  notify('Excel exportado correctamente');
+}
+
+/* ─────────────────── CONFIG ─────────────────── */
+function loadConfig(){
+  const c=STATE.config;
+  document.getElementById('cfg-nombre').value=c.nombre||'';
+  document.getElementById('cfg-rif').value=c.rif||'';
+  document.getElementById('cfg-tel').value=c.telefono||'';
+  document.getElementById('cfg-email').value=c.email||'';
+  document.getElementById('cfg-dir').value=c.direccion||'';
+  document.getElementById('cfg-director').value=c.director||'';
+}
+
+function saveConfig(){
+  STATE.config={
+    nombre:   document.getElementById('cfg-nombre').value.trim(),
+    rif:      document.getElementById('cfg-rif').value.trim(),
+    telefono: document.getElementById('cfg-tel').value.trim(),
+    email:    document.getElementById('cfg-email').value.trim(),
+    direccion:document.getElementById('cfg-dir').value.trim(),
+    director: document.getElementById('cfg-director').value.trim(),
+  };
+  saveState(); notify('Configuración guardada');
+}
+
+/* ─────────────────── USUARIOS ─────────────────── */
+let editUserId=null;
+
+function renderUsuarios(){
+  const rl={admin:'Administrador',asistente:'Asistente',empleado:'Empleado'};
+  const list=document.getElementById('users-list');
+  if(isMobile()){
+    list.innerHTML=STATE.users.map(u=>`
+      <div class="user-card">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;overflow:hidden">
+          <div style="width:36px;height:36px;background:var(--hc-green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0">${u.name.charAt(0)}</div>
+          <div style="overflow:hidden">
+            <div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name}</div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px">
+              <span style="font-size:11px;color:var(--hc-gray);font-family:monospace">@${u.username}</span>
+              <span class="badge badge-${u.role}">${rl[u.role]}</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️</button>
+          ${u.id!==STATE.currentUser?.id?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑️</button>`:''}
+        </div>
+      </div>`).join('');
+  } else {
+    list.innerHTML=`<div class="card"><div class="tbl-wrap"><table>
+      <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Permisos</th><th>Acciones</th></tr></thead>
+      <tbody>${STATE.users.map(u=>`
+        <tr>
+          <td><code style="background:var(--hc-gray-l);padding:2px 8px;border-radius:4px;font-size:12px">${u.username}</code></td>
+          <td style="font-weight:600">${u.name}</td>
+          <td><span class="badge badge-${u.role}">${rl[u.role]}</span></td>
+          <td style="font-size:12px;color:var(--hc-gray)">${u.role==='admin'?'Acceso completo':u.role==='asistente'?'Ingresos y gastos':'Solo reportes'}</td>
+          <td><div style="display:flex;gap:5px">
+            <button class="btn btn-outline btn-sm" onclick="editUser(${u.id})">✏️</button>
+            ${u.id!==STATE.currentUser?.id?`<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑️</button>`:''}
+          </div></td>
+        </tr>`).join('')}</tbody></table></div></div>`;
+  }
+}
+
+function openUserModal(id=null){
+  editUserId=id;
+  const u=id?STATE.users.find(x=>x.id===id):null;
+  document.getElementById('modal-user-title').textContent=id?'Editar Usuario':'Nuevo Usuario';
+  document.getElementById('user-name').value=u?.name||'';
+  document.getElementById('user-username').value=u?.username||'';
+  document.getElementById('user-username').disabled=!!id;
+  document.getElementById('user-pass').value=u?.password||'';
+  document.getElementById('user-role').value=u?.role||'asistente';
+  document.getElementById('modal-user').style.display='flex';
+}
+
+function editUser(id){ openUserModal(id); }
+
+function saveUser(){
+  const name=document.getElementById('user-name').value.trim();
+  const username=document.getElementById('user-username').value.trim();
+  const pass=document.getElementById('user-pass').value;
+  const role=document.getElementById('user-role').value;
+  if(!name||!username||!pass){notify('Complete todos los campos','error');return;}
+  if(editUserId){
+    STATE.users=STATE.users.map(u=>u.id===editUserId?{...u,name,password:pass,role}:u);
+    notify('Usuario actualizado');
+  } else {
+    if(STATE.users.find(u=>u.username===username)){notify('Ese nombre de usuario ya existe','error');return;}
+    STATE.users.push({id:Date.now(),username,password:pass,role,name});
+    notify('Usuario creado');
+  }
+  saveState(); closeModal('modal-user'); renderUsuarios();
+}
+
+function deleteUser(id){
+  if(id===STATE.currentUser?.id){notify('No puedes eliminarte a ti mismo','error');return;}
+  if(!confirm('¿Eliminar este usuario?'))return;
+  STATE.users=STATE.users.filter(u=>u.id!==id);
+  saveState(); renderUsuarios(); notify('Usuario eliminado');
+}
+
+/* ─────────────────── MODAL ─────────────────── */
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+/* ─────────────────── INIT ─────────────────── */
+window.addEventListener('resize', ()=>{
+  if(document.getElementById('app').style.display!=='none'){
+    const p = PAGES.find(id=>document.getElementById(`page-${id}`)?.classList.contains('active'));
+    if(p==='movimientos') renderMovimientos();
+    if(p==='usuarios') renderUsuarios();
+  }
+});
+
+// Mostrar login al cargar
+document.getElementById('login-page').style.display='flex';
+document.getElementById('login-page').style.flexDirection='column';
+document.getElementById('app').style.display='none';
+</script>
+
+<!-- ══════════════ PRINT STYLES ══════════════ -->
+<style>
+@media print{
+  .topbar,.navbar,.hc-divider,.site-footer,
+  .page-header button,.btn,.tabs,.month-bar,
+  select,.notif,#rep-year-sel{display:none!important}
+  .page-header{background:none!important;color:var(--hc-dark)!important;padding:0!important}
+  .page-header h2,.page-header p{color:var(--hc-dark)!important}
+  body{background:white}
+  .card{box-shadow:none;border:1px solid #ddd}
+  th{background:#f0f0f0}
+}
+</style>
+</body>
+</html>
